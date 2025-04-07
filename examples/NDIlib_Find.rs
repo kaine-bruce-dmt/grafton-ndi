@@ -7,22 +7,18 @@ fn main() -> Result<(), Error> {
     if let Ok(ndi) = NDI::new() {
         // Create an NDI finder to locate sources on the network
         // let finder = Finder::default();
-        let finder = Finder::new(false, None, Some("192.168.0.110"));
+        let finder = Finder::new(true, None, None);
         let ndi_find = Find::new(&ndi, finder)?;
 
         // Run for 15 seconds
         let start = Instant::now();
         while start.elapsed() < Duration::from_secs(15) {
-            // Wait up to 5 seconds to check for new sources to be added or removed
-            println!("Waiting for sources...");
-            if !ndi_find.wait_for_sources(5000) {
-                println!("No change to the sources found.");
-                continue;
-            }
+            // With the way that current sources work, this is pretty much a 5s blocking call now. And could use native rust instead.
+            ndi_find.wait_for_sources(5000);
 
             // Get the updated list of sources
-            println!("Getting sources...");
-            let sources = ndi_find.get_sources(5000)?;
+            println!("Getting current sources...");
+            let sources = ndi_find.get_current_sources()?;
 
             // Display all the sources
             println!("Network sources ({} found).", sources.len());
